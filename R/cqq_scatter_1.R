@@ -1,25 +1,32 @@
 #===================================================================================================
 #' A scatter plot of two quantitative and one categorical variables
 #' 
-#' A scatter plot that explores the relationship of two quantitave varaibles that are subdivded 
-#' into around 3-8 categories. Applies linear regression significance tests within categories and 
-#' on category means. 95% cofidence intervals of variable means are displayed on the plot. 
+#' A scatter plot that explores the relationship of two quantitave variables that are subdivided 
+#' into 3-10 categories. Applies linear regression significance tests within categories and 
+#' on category means. 95\% bootstrapped cofidence intervals of variable means are displayed on the
+#' plot. 
 #' 
 #' @param data \code{(data.frame)} The data that will be plotted. Must have at least two numeric 
 #' columns and one factor column, preferably ordered. 
+#' @param cat_1 (\code{character, length == 1}) The name of column in \code{data} that stores the
+#' categorical variable. This column should be a factor, preferably ordered, with 3 to 10 levels. 
 #' @param quant_1 (\code{character, length == 1}) The name of column in \code{data} that stores the
 #' quantative that will plotted on the x-axis.
 #' @param quant_2 (\code{character, length == 1}) The name of column in \code{data} that stores the
 #' quantative that will plotted on the y-axis. 
-#' @param title (\code{character, length == 1}) The tile of the graph
 #' @param x_label (\code{character, length == 1}) The label of the x-axis
 #' @param y_label (\code{character, length == 1}) The label of the y-axis
+#' @param title (\code{character, length == 1}) The tile of the graph
+#' 
+#' @examples
+#' # Plot sepal width vs sepal length for three species of iris:
+#' cqq_scatter_1(data = iris, cat_1 = "Species", quant_1 = "Sepal.Width", quant_2 = "Sepal.Length")
 #' 
 #' @import ggplot2 boot plyr grid
 #' 
 #' @export
-cqq_scatter <- function(data, cat_1, quant_1, quant_2, title = "", x_label = quote(quant_1),
-                        y_label = quote(quant_2)) {
+cqq_scatter_1 <- function(data, cat_1, quant_1, quant_2, x_label = quant_1, y_label = quant_2,
+                        title = paste(quant_1, "vs", quant_2, "by", cat_1)) {
   data[[cat_1]] <- as.factor(data[[cat_1]])
   get_ggplot2_part <- function(my_plot, part) {
     my_build <- ggplot_build(my_plot)
@@ -69,7 +76,7 @@ cqq_scatter <- function(data, cat_1, quant_1, quant_2, title = "", x_label = quo
   # Main scatter plot ------------------------------------------------------------------------------
   xy_scatter <- ggplot(data, aes_string(x = quant_1, y = quant_2, color = cat_1)) +
     geom_smooth(color = "#000000", fill = "#FFFFFFFF", data = means, aes_string(x = quant_1, y = quant_2, group = 1), method = lm) +
-    stat_density2d(data = data, alpha = .05, aes_string(fill = cat_1, color = NULL), geom="polygon", n = 100, bins=10) +
+    stat_density2d(data = data, alpha = .02, aes_string(fill = cat_1, color = NULL), geom="polygon", n = 200, bins= 50) +
     geom_point(alpha = .4, size = 2) +
     geom_point(data = means, aes_string(x = quant_1, y = quant_2, color = cat_1), size = 3) +
     geom_errorbar(data = quant_2_ci, aes_string(x = quant_1, y = quant_2, ymin = "low", ymax = "high", width = 0), size = 2) +
@@ -83,7 +90,7 @@ cqq_scatter <- function(data, cat_1, quant_1, quant_2, title = "", x_label = quo
     labs(x = x_label, y = y_label) +
     scale_x_continuous(expand = c(1, 0)) +
     scale_y_continuous(expand = c(1, 0)) +
-    coord_cartesian(ylim=range(data$rich), xlim = range(data[[quant_1]])) +
+    coord_cartesian(xlim = range(data[[quant_1]]), ylim = range(data[[quant_2]])) +
     theme(axis.title = element_text(size = rel(1.3))) +
     common_theme
   xy_scatter_panel <- get_ggplot2_part(xy_scatter, "panel")
@@ -96,12 +103,12 @@ cqq_scatter <- function(data, cat_1, quant_1, quant_2, title = "", x_label = quo
                      ddply(data, cat_1, function(x) mean(range(x[[quant_1]])))[2],
                      ddply(data, cat_1, function(x) mean(c(mean(range(x[[quant_2]])), max(x[[quant_2]]))))[2])
   names(plot_text) <- c(cat_1,"text", "x", "y")
-  plot_text$site <- factor(plot_text$site, ordered = TRUE, levels = levels(unique(data$site))) #makes same order as in data
+  plot_text[[cat_1]] <- factor(plot_text[[cat_1]], ordered = TRUE, levels = levels(unique(data[[cat_1]]))) #makes same order as in data
   small_scatters <- ggplot(data, aes_string(x = quant_1, y = quant_2, color = cat_1)) +
     geom_smooth(method = lm, fill = "#FFFFFFFF") +
     geom_point() +
     geom_text(data = plot_text, aes(x = x, y = y, label = text), color = "#444444",  parse = TRUE, size = 5, fontface = "bold") +
-    facet_wrap( ~ site, scales = "free", nrow = 1) +
+    facet_wrap(as.formula(paste0(" ~ ", cat_1)), scales = "free", nrow = 1) +
     guides(color = FALSE) +
     labs(title = title) +
     scale_x_continuous(expand = c(.03, 0)) +
