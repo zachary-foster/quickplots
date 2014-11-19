@@ -1,0 +1,13 @@
+Package: quickplots
+Type: Package
+Title: A selection of information-dense, argument-sparse plotting functions
+Version: 0.1.0
+Date: 2014-11-19
+Author: Zachary Foster
+Maintainer: <zacharyfoster1989@gmail.com>
+Description: THIS IS A WORK IN PROGRESS. This package is intended to be a
+    collection of plotting functions that each are designed to work with some
+    combination of variable types (e.g. quantitative, categorical, binary). The
+    names of functions should reflect this so it should be unnecessary to
+    memorize all the function names.
+License: Creative Commons with Attribution
