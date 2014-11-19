@@ -1,0 +1,36 @@
+---
+title: "Installing quickplots"
+author: "Zachary Foster"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+Since `quickplots` is not on CRAN , it has to be installed from its GitHub repository. There is a function to do this called
+`install_github` in the `devtools` package. 
+
+If you do not have the `devtools` package already installed, you can install it by entering:
+
+```{r, eval=FALSE}
+install.packages('devtools')
+```
+
+Once you have `devtools` installed, you can install `quickplots` using:
+
+```{r, eval=FALSE}
+devtools::install_github(repo = "zachary-foster/quickplots")
+```
+
+`quickplots` has some dependencies:
+
+- ggplot2
+- boot
+- plyr
+- grid
+
+
+These should be installed automatically with `quickplots` if you do not already have them. If this does not happen, 
+you might have to install them yourself. 
