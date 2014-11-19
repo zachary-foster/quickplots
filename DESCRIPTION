@@ -11,5 +11,6 @@ Description: THIS IS A WORK IN PROGRESS. This package is intended to be a
     names of functions should reflect this so it should be unnecessary to
     memorize all the function names.
 License: Creative Commons with Attribution
-Suggests: knitr
+Suggests:
+    knitr
 VignetteBuilder: knitr

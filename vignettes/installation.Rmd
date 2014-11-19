@@ -24,7 +24,7 @@ Once you have `devtools` installed, you can install `quickplots` using:
 devtools::install_github(repo = "zachary-foster/quickplots")
 ```
 
-`quickplots` has some dependencies:
+`quickplots` has some dependencies, including:
 
 - ggplot2
 - boot
