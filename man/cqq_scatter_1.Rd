@@ -4,7 +4,8 @@
 \title{A scatter plot of two quantitative and one categorical variables}
 \usage{
 cqq_scatter_1(data, cat_1, quant_1, quant_2, x_label = quant_1,
-  y_label = quant_2, title = paste(quant_1, "vs", quant_2, "by", cat_1))
+  y_label = quant_2, title = paste(quant_1, "vs", quant_2, "by", cat_1),
+  text_size = 1)
 }
 \arguments{
 \item{data}{\code{(data.frame)} The data that will be plotted. Must have at least two numeric
@@ -24,6 +25,10 @@ quantative that will plotted on the y-axis.}
 \item{y_label}{(\code{character, length == 1}) The label of the y-axis}
 
 \item{title}{(\code{character, length == 1}) The tile of the graph}
+
+\item{text_size}{(\code{numeric, length == 1}) A multiplicative scaling of all text size. For,
+example, 1 is standard size and 2 is twice as large. This is useful for exporting graphs of
+various sizes, since text size does not automatically scale with export size.}
 }
 \description{
 A scatter plot that explores the relationship of two quantitave variables that are subdivided

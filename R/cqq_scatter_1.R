@@ -17,6 +17,9 @@
 #' @param x_label (\code{character, length == 1}) The label of the x-axis
 #' @param y_label (\code{character, length == 1}) The label of the y-axis
 #' @param title (\code{character, length == 1}) The tile of the graph
+#' @param text_size (\code{numeric, length == 1}) A multiplicative scaling of all text size. For, 
+#' example, 1 is standard size and 2 is twice as large. This is useful for exporting graphs of
+#' various sizes, since text size does not automatically scale with export size. 
 #' 
 #' @examples
 #' # Plot sepal width vs sepal length for three species of iris:
@@ -26,7 +29,7 @@
 #' 
 #' @export
 cqq_scatter_1 <- function(data, cat_1, quant_1, quant_2, x_label = quant_1, y_label = quant_2,
-                        title = paste(quant_1, "vs", quant_2, "by", cat_1)) {
+                        title = paste(quant_1, "vs", quant_2, "by", cat_1), text_size = 1) {
   data[[cat_1]] <- as.factor(data[[cat_1]])
   get_ggplot2_part <- function(my_plot, part) {
     my_build <- ggplot_build(my_plot)
@@ -85,13 +88,15 @@ cqq_scatter_1 <- function(data, cat_1, quant_1, quant_2, x_label = quant_1, y_la
              y = max(data[[quant_2]])*.8,
              label = lm_eqn(means[[quant_1]], means[[quant_2]]),
              alpha = .7, 
-             parse = TRUE) +
+             parse = TRUE,
+             size = 5*text_size) +
     guides(color = FALSE, fill = FALSE, size = FALSE) +
     labs(x = x_label, y = y_label) +
     scale_x_continuous(expand = c(1, 0)) +
     scale_y_continuous(expand = c(1, 0)) +
     coord_cartesian(xlim = range(data[[quant_1]]), ylim = range(data[[quant_2]])) +
-    theme(axis.title = element_text(size = rel(1.3))) +
+    theme(axis.title = element_text(size = rel(1.3*text_size)),
+          axis.text = element_text(size = rel(1*text_size))) +
     common_theme
   xy_scatter_panel <- get_ggplot2_part(xy_scatter, "panel")
   xy_scatter_axis_l <- get_ggplot2_part(xy_scatter, "axis-l")
@@ -107,7 +112,8 @@ cqq_scatter_1 <- function(data, cat_1, quant_1, quant_2, x_label = quant_1, y_la
   small_scatters <- ggplot(data, aes_string(x = quant_1, y = quant_2, color = cat_1)) +
     geom_smooth(method = lm, fill = "#FFFFFFFF") +
     geom_point() +
-    geom_text(data = plot_text, aes(x = x, y = y, label = text), color = "#444444",  parse = TRUE, size = 5, fontface = "bold") +
+    geom_text(data = plot_text, aes(x = x, y = y, label = text), color = "#444444",  parse = TRUE,
+              size = 5*text_size, fontface = "bold") +
     facet_wrap(as.formula(paste0(" ~ ", cat_1)), scales = "free", nrow = 1) +
     guides(color = FALSE) +
     labs(title = title) +
@@ -120,25 +126,22 @@ cqq_scatter_1 <- function(data, cat_1, quant_1, quant_2, x_label = quant_1, y_la
           panel.margin = unit(0, "cm"),
           panel.background = element_blank(),
           strip.background = element_blank(), 
-          strip.text = element_text(size = rel(1.3)),
-          title = element_text(size = rel(1.4)))
+          strip.text = element_text(size = rel(1.3*text_size)),
+          title = element_text(size = rel(1.4*text_size)))
   small_scatters <- ggplot_gtable(ggplot_build(small_scatters))
-  
   # Graph plots in grid ----------------------------------------------------------------------------
   draw_plot <- function(row, col, my_plot) {
     pushViewport(viewport(layout.pos.col = col, layout.pos.row = row))
-    #    grid.rect()
-    #     print(my_plot, newpage = FALSE)
     grid.draw(my_plot)
     upViewport()
   }
-  grid.newpage()
-  pushViewport(viewport(layout=grid.layout(nrow = 2, ncol = 1,
+  grid.newpage() #initialize plotting area
+  pushViewport(viewport(layout=grid.layout(nrow = 2, ncol = 1, # Divide the plotting area into two rows
                                            widths = unit(c(1), "null"),
                                            heights = unit(c(0.3, 0.7), "null"))))
-  draw_plot(1, 1, small_scatters)
-  pushViewport(viewport(layout.pos.col = 1, layout.pos.row = 2))
-  pushViewport(viewport(layout=grid.layout(nrow = 4, ncol = 4,
+  draw_plot(1, 1, small_scatters) # Draw the small scatter plots in the top divide
+  pushViewport(viewport(layout.pos.col = 1, layout.pos.row = 2)) # Move focus to the bottome divide
+  pushViewport(viewport(layout=grid.layout(nrow = 4, ncol = 4, # Split the bottom divide into a 4x4 grid
                                            widths = unit(c(0.03, 0.03, 0.82, 0.14), "null"),
                                            heights = unit(c(0.2, 0.68, 0.06, 0.06), "null"))))
   draw_plot(1, 3, x_density)
